@@ -98,7 +98,7 @@ init_products_table()
 username_table = {u.username: u for u in users}
 userid_table = {u.id: u for u in users}
 
-
+# fetching data from admin
 def fetch_admin():
     with sqlite3.connect('dentist.db') as conn:
         cursor = conn.cursor()
@@ -115,7 +115,7 @@ def fetch_admin():
 
 # admin account table
 def init_admin_table():
-    with sqlite3.connect('hotel.db') as conn:
+    with sqlite3.connect('dentist.db') as conn:
         conn.execute("CREATE TABLE IF NOT EXISTS admin(admin_id INTEGER PRIMARY KEY AUTOINCREMENT,"
                      "admin_username TEXT NOT NULL,"
                      "admin_password TEXT NOT NULL)")
@@ -128,7 +128,7 @@ admin = fetch_admin()
 adminname_table = {a.admin_username: a for a in admin}
 adminid_table = {a.admin_id: a for a in admin}
 
-
+# appointment table
 def init_appointment_table():
     with sqlite3.connect('dentist.db') as conn:
         conn.execute("CREATE TABLE IF NOT EXISTS appointment(appointment_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -225,7 +225,7 @@ def login_user():
     if request.method == "POST":
         username = request.json["username"]
         password = request.json["password"]
-        conn = sqlite3.connect("hotel.db")
+        conn = sqlite3.connect("dentist.db")
         c = conn.cursor()
         statement = (f"SELECT * FROM user WHERE username='{username}' and password ="
                      f"'{password}'")
@@ -408,18 +408,18 @@ def delete_user(appointment_id):
 #     return response
 
 
-def upload_file():
-    app.logger.info('in upload route')
-    cloudinary.config(cloud_name='dtjgqnwbk', api_key='547853474672121',
-                      api_secret='fXXsay0Fd5RmSPMS5TwZUaJFsRk')
-    upload_result = None
-    if request.method == 'POST' or request.method == 'PUT':
-        product_image = request.json['picture']
-        app.logger.info('%s file_to_upload', product_image)
-        if product_image:
-            upload_result = cloudinary.uploader.upload(product_image)
-            app.logger.info(upload_result)
-            return upload_result['url']
+# def upload_file():
+#     app.logger.info('in upload route')
+#     cloudinary.config(cloud_name='dtjgqnwbk', api_key='547853474672121',
+#                       api_secret='fXXsay0Fd5RmSPMS5TwZUaJFsRk')
+#     upload_result = None
+#     if request.method == 'POST' or request.method == 'PUT':
+#         product_image = request.json['picture']
+#         app.logger.info('%s file_to_upload', product_image)
+#         if product_image:
+#             upload_result = cloudinary.uploader.upload(product_image)
+#             app.logger.info(upload_result)
+#             return upload_result['url']
 
 
 # route that gets a single product by its ID
