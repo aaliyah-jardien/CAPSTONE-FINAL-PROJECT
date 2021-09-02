@@ -82,7 +82,6 @@ def init_patient_table():
     conn.execute('CREATE TABLE IF NOT EXISTS patient (patient_id INTEGER PRIMARY KEY,'
                  'patient_email TEXT NOT NULL,'
                  'patient_password TEXT NOT NULL,'
-                 'patient_name TEXT NOT NULL,'
                  'patient_surname TEXT NOT NULL,'
                  'patient_dob TEXT NOT NULL,'
                  'patient_gender TEXT NOT NULL,'
