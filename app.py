@@ -50,11 +50,11 @@ class Database:
 
         self.conn.execute("CREATE TABLE IF NOT EXISTS booking(booking_id INTEGER PRIMARY KEY AUTOINCREMENT,"
                           "patient_name TEXT NOT NULL,"
-                          "patient_surname TEXT NOT NULL,"
+                          "patient_surname TEXT,"
                           "patient_email TEXT NOT NULL,"
-                          "patient_cellphone INTEGER NOT NULL,"
+                          "patient_cellphone INTEGER, "
                           "patient_service TEXT NOT NULL,"
-                          "todays_date CURRENT_DATE,"
+                          "todays_date CURRENT_DATE, "
                           "booking_date DATE,"
                           "patient_id INTEGER,"
                           "CONSTRAINT fk_patients FOREIGN KEY(patient_id) REFERENCES patient(patient_id))")
@@ -200,12 +200,76 @@ def dentist_login():
 
 
 # ROUTE FOR EDITING DENTIST (put)
+@app.route('/edit-dentist/<int:dentist_id>', methods=["PUT"])
+def edit_dentist(dentist_id):
+    response = {}
+
+    if request.method == "PUT":
+        try:
+            dentist_name = request.form["dentist_name"]
+            dentist_surname = request.form["dentist_surname"]
+            dentist_email = request.form["dentist_email"]
+            dentist_username = request.form["dentist_username"]
+            dentist_password = request.form["dentist_password"]
+
+            with sqlite3.connect('dentist_appointment.db') as conn:
+                cursor = conn.cursor()
+                cursor.execute("UPDATE dentist SET dentist_name=?,"
+                               "dentist_surname=?,"
+                               "dentist_email=?,"
+                               "dentist_username=?,"
+                               "dentist_password=? WHERE dentist_id=?",
+                               (dentist_name, dentist_surname, dentist_email, dentist_username,
+                                dentist_password, dentist_id))
+                conn.commit()
+                response['message'] = "Dentist edited successfully"
+                response['status_code'] = 201
+                return response
+
+        except ValueError:
+            response['message'] = "Incorrect Values"
+            response['status_code'] = 400
+            return response
+
+        except ConnectionError:
+            response['message'] = "Connection Failed"
+            response['status_code'] = 500
+            return response
+
+        except TimeoutError:
+            response['message'] = "Connection Timeout"
+            response['status_code'] = 500
+            return response
+
+    else:
+        response['message'] = "Incorrect method"
+        response['status_code'] = 400
+        return response
+
+
 # ROUTE FOR DELETING DENTIST (delete)
+@app.route('/delete-dentist/<int:dentist_id>', methods=["DELETE"])
+def delete_dentist(dentist_id):
+    response = {}
+    if request.method == "DELETE":
+        with sqlite3.connect("dentist_appointment.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM dentist WHERE dentist_id=" + str(dentist_id))
+            conn.commit()
+
+            response['status_code'] = 200
+            response['message'] = "Dentist deleted successfully"
+        return response
+    else:
+        if request.method != "DELETE":
+            response['status_code'] = 400
+            response['message'] = "Wrong Method"
+            return response
 
 
 # zxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxczxcvxcvzxcvzxcvzxcvzxcvzxcvzxc
-# ROUTE FOR REGISTERING & DISPLAYING PATIENTS
-@app.route('/register-patient/', methods=["POST", "GET"])
+# ROUTE FOR REGISTERING
+@app.route('/register-patient/', methods=["POST"])
 def register_patient():
     response = {}
 
@@ -235,11 +299,10 @@ def register_patient():
                                    "patient_cellphone) VALUES(?, ?, ?, ?, ?, ?, ?)",
                                    (patient_email, patient_password, patient_name, patient_surname,
                                     patient_dob, patient_gender, patient_cellphone))
-
                     conn.commit()
                     response['message'] = "Patient successfully registered"
                     response['status_code'] = 201
-
+                    return response
             else:
                 response['error_message'] = "Invalid Email"
                 response['status_code'] = 404
@@ -267,34 +330,33 @@ def register_patient():
 
 
 # ROUTE FOR PATIENTS LOGGING IN
-
-
-# ROUTE TO VIEW ONE PATIENT
-@app.route('/view-one-patient/<int:patient_id>', methods=["GET"])
-def view_patient(patient_id):
+@app.route('/login-patient/', methods=["PATCH"])
+def login_patient():
     response = {}
-    with sqlite3.connect("dentists.db") as conn:
+
+    if request.method == "PATCH":
+        with sqlite3.connect("dentist_appointment.db") as conn:
+            conn.row_factory = dict_factory
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM patient")
+
+            response['status_code'] = 200
+            response['message'] = "Patient logged in successfully"
+            response['date'] = cursor.fetchall()
+        return response
+
+
+# ROUTE TO VIEW ALL THE PATIENTS
+@app.route('/view-patients/', methods=["GET"])
+def fetch_patient():
+    response = {}
+    with sqlite3.connect("dentist_appointment.db") as conn:
         conn.row_factory = dict_factory
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM patients WHERE patient_id=" + str(patient_id))
-        patient = cursor.fetchone()
-        response['data'] = patient
-        response['message'] = "Fetched the patient successfully"
-        response['status_code'] = 200
-    return response
-
-
-# # ROUTE TO VIEW ALL THE PATIENTS
-@app.route('/view-all-patients/', methods=['GET'])
-def fetch_patients():
-    response = {}
-    with sqlite3.connect("dentists.db") as conn:
-        conn.row_factory = dict_factory
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM patients")
+        cursor.execute("SELECT * FROM patient")
 
         response['status_code'] = 200
-        response['message'] = "Fetched all patients"
+        response['message'] = "Fetched all patients successfully"
         response['data'] = cursor.fetchall()
     return response
 
@@ -306,13 +368,13 @@ def edit_patient():
 
     if request.method == "PUT":
         try:
-            patient_email = request.json["patient_email"]
-            patient_password = request.json["patient_password"]
-            patient_name = request.json["patient_name"]
-            patient_surname = request.json["patient_surname"]
-            patient_dob = request.json["patient_dob"]
-            patient_gender = request.json["patient_gender"]
-            patient_cellphone = request.json["patient_cellphone"]
+            patient_email = request.form["patient_email"]
+            patient_password = request.form["patient_password"]
+            patient_name = request.form["patient_name"]
+            patient_surname = request.form["patient_surname"]
+            patient_dob = request.form["patient_dob"]
+            patient_gender = request.form["patient_gender"]
+            patient_cellphone = request.form["patient_cellphone"]
 
             with sqlite3.connect('dentist_appointment.db') as conn:
                 cursor = conn.cursor()
@@ -327,7 +389,7 @@ def edit_patient():
                                 patient_dob, patient_gender, patient_cellphone))
 
                 conn.commit()
-                response['message'] = "Patient successfully registered"
+                response['message'] = "Patient edited successfully"
                 response['status_code'] = 201
 
         except ValueError:
@@ -356,9 +418,9 @@ def edit_patient():
 def delete_patient(patient_id):
     response = {}
     if request.method == "DELETE":
-        with sqlite3.connect("dentists.db") as conn:
+        with sqlite3.connect("dentist_appointment.db") as conn:
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM patients WHERE patient_id=" + str(patient_id))
+            cursor.execute("DELETE FROM patient WHERE patient_id=" + str(patient_id))
             conn.commit()
 
             response['status_code'] = 200
@@ -387,6 +449,14 @@ def delete_patient(patient_id):
 @app.route('/add-booking/<int:patient_id>', methods=["POST"])
 def appointment(patient_id):
     response = {}
+    # "patient_name TEXT NOT NULL,"
+    # "patient_surname TEXT,"
+    # "patient_email TEXT NOT NULL,"
+    # "patient_cellphone INTEGER, "
+    # "patient_service TEXT NOT NULL,"
+    # "todays_date CURRENT_DATE, "
+    # "booking_date DATE,"
+    # "patient_id INTEGER,"
 
     try:
         patient_name = request.json["patient_name"]
@@ -394,7 +464,7 @@ def appointment(patient_id):
         patient_email = request.json["patient_email"]
         patient_cellphone = request.json["patient_cellphone"]
         patient_service = request.json["patient_service"]
-        current_date = request.json["current_date"]
+        todays_date = request.json["todays_date"]
         booking_date = request.json["booking_date"]
         patient_id = patient_id
 
@@ -404,35 +474,24 @@ def appointment(patient_id):
             if re.search(ex, patient_email):
                 with sqlite3.connect("dentist_appointment.db") as conn:
                     cursor = conn.cursor()
-                    cursor.execute("INSERT INTO booking ("
+                    cursor.execute("INSERT OR REPLACE INTO booking ("
                                    "patient_name,"
                                    "patient_surname,"
                                    "patient_email,"
                                    "patient_cellphone,"
                                    "patient_service,"
-                                   "current_date,"
+                                   "todays_date,"
                                    "booking_date,"
                                    "patient_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-                                   (patient_name, patient_surname, patient_email, patient_cellphone,
-                                    patient_service, current_date, booking_date, patient_id))
+                                   (patient_name, patient_surname, patient_email, patient_cellphone,patient_service, todays_date,booking_date, patient_id))
                     conn.commit()
 
-                    msg = Message("Dentist Booking", sender="aaliyahjardien04@gmail.com", recipients=[patient_email])
-                    msg.body = "Booking made for:" + str(patient_name) + "for the date of " + str(booking_date)
-                    mail.send(msg)
+                    # msg = Message("Dentist Booking", sender="aaliyahjardien04@gmail.com", recipients=[patient_email])
+                    # msg.body = "Booking made for:" + str(patient_name) + "for the date of " + str(booking_date)
+                    # mail.send(msg)
 
                     response['message'] = "Booking made successfully"
                     response['status_code'] = 200
-                    # response['data'] = {
-                    #     patient_name: patient_name,
-                    #     patient_surname: patient_surname,
-                    #     patient_email: patient_email,
-                    #     patient_cellphone: patient_cellphone,
-                    #     patient_service: patient_service,
-                    #     current_date: current_date,
-                    #     booking_date: booking_date,
-                    #     patient_id: patient_id
-                    #     }
                     return response
 
             else:
@@ -458,7 +517,7 @@ def fetch_appointment(patient_id):
     with sqlite3.connect("dentist_appointment.db") as conn:
         conn.row_factory = dict_factory
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM appointments WHERE patient_id=" + str(patient_id))
+        cursor.execute("SELECT * FROM booking WHERE patient_id=" + str(patient_id))
         date_check = cursor.fetchone()
 
         response['status_code'] = 200
@@ -467,7 +526,7 @@ def fetch_appointment(patient_id):
     return response
 
 
-# ROUTE FOR DISPLAYING BOOKING (get)
+# ROUTE FOR DISPLAYING ALL BOOKINGS (get)
 @app.route('/display-booking/', methods=['GET'])
 def view_appointments():
     response = {}
@@ -483,21 +542,70 @@ def view_appointments():
 
 
 # # ROUTE FOR EDITING BOOKING (put)
-# @app.route('/edit-booking/nt:patient_id>', methods=["PUT"])
+@app.route('/edit-booking/<int:patient_id>', methods=["PUT"])
+def edit_booking(patient_id):
+    response = {}
+
+    if request.method == "PUT":
+        try:
+            patient_name = request.json["patient_name"]
+            patient_surname = request.json["patient_surname"]
+            patient_email = request.json["patient_email"]
+            patient_cellphone = request.json["patient_cellphone"]
+            patient_service = request.json["patient_service"]
+            todays_date = request.json["todays_date"]
+            booking_date = request.json["booking_date"]
+            patient_id = patient_id
+
+            with sqlite3.connect('dentist_appointment.db') as conn:
+                cursor = conn.cursor()
+                cursor.execute("UPDATE booking SET patient_name=?,"
+                               "patient_surname=?,"
+                               "patient_email=?,"
+                               "patient_cellphone=?,"
+                               "patient_service=?,"
+                               "todays_date=?,"
+                               "booking_date=? WHERE patient_id=?",
+                               (patient_name, patient_surname, patient_email, patient_cellphone,
+                                patient_service, todays_date, booking_date, patient_id))
+                conn.commit()
+                response['message'] = "Booking edited successfully"
+                response['status_code'] = 201
+                return response
+
+        except ValueError:
+            response['message'] = "Incorrect Values"
+            response['status_code'] = 400
+            return response
+
+        except ConnectionError:
+            response['message'] = "Connection Failed"
+            response['status_code'] = 500
+            return response
+
+        except TimeoutError:
+            response['message'] = "Connection Timeout"
+            response['status_code'] = 500
+            return response
+
+    else:
+        response['message'] = "Incorrect method"
+        response['status_code'] = 400
+        return response
 
 
 # ROUTE FOR CANCELING BOOKING (delete)
 @app.route('/delete-booking/<int:patient_id>', methods=["DELETE"])
-def delete_appointment(patient_id):
+def delete_booking(patient_id):
     response = {}
     if request.method == "DELETE":
         with sqlite3.connect("dentist_appointment.db") as conn:
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM appointments WHERE patient_id=" + str(patient_id))
+            cursor.execute("DELETE FROM booking WHERE patient_id=" + str(patient_id))
             conn.commit()
 
             response['status_code'] = 200
-            response['message'] = "Appointment deleted successfully"
+            response['message'] = "Booking deleted successfully"
         return response
     else:
         response['status_code'] = 400
