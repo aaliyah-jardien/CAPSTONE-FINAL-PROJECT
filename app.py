@@ -152,6 +152,7 @@ def register_admin():
         response['status_code'] = 500
         return response
 
+
 # ROUTE VIEWING DENTISTS (get)
 @app.route('/view-dentist/', methods=["GET"])
 def view_dentist():
@@ -206,11 +207,11 @@ def edit_dentist(dentist_id):
 
     if request.method == "PUT":
         try:
-            dentist_name = request.form["dentist_name"]
-            dentist_surname = request.form["dentist_surname"]
-            dentist_email = request.form["dentist_email"]
-            dentist_username = request.form["dentist_username"]
-            dentist_password = request.form["dentist_password"]
+            dentist_name = request.json["dentist_name"]
+            dentist_surname = request.json["dentist_surname"]
+            dentist_email = request.json["dentist_email"]
+            dentist_username = request.json["dentist_username"]
+            dentist_password = request.json["dentist_password"]
 
             with sqlite3.connect('dentist_appointment.db') as conn:
                 cursor = conn.cursor()
@@ -368,13 +369,13 @@ def edit_patient():
 
     if request.method == "PUT":
         try:
-            patient_email = request.form["patient_email"]
-            patient_password = request.form["patient_password"]
-            patient_name = request.form["patient_name"]
-            patient_surname = request.form["patient_surname"]
-            patient_dob = request.form["patient_dob"]
-            patient_gender = request.form["patient_gender"]
-            patient_cellphone = request.form["patient_cellphone"]
+            patient_email = request.json["patient_email"]
+            patient_password = request.json["patient_password"]
+            patient_name = request.json["patient_name"]
+            patient_surname = request.json["patient_surname"]
+            patient_dob = request.json["patient_dob"]
+            patient_gender = request.json["patient_gender"]
+            patient_cellphone = request.json["patient_cellphone"]
 
             with sqlite3.connect('dentist_appointment.db') as conn:
                 cursor = conn.cursor()
@@ -483,7 +484,8 @@ def appointment(patient_id):
                                    "todays_date,"
                                    "booking_date,"
                                    "patient_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-                                   (patient_name, patient_surname, patient_email, patient_cellphone,patient_service, todays_date,booking_date, patient_id))
+                                   (patient_name, patient_surname, patient_email, patient_cellphone, patient_service,
+                                    todays_date, booking_date, patient_id))
                     conn.commit()
 
                     # msg = Message("Dentist Booking", sender="aaliyahjardien04@gmail.com", recipients=[patient_email])
