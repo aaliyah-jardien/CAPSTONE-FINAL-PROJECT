@@ -174,20 +174,27 @@ def dentist_login():
     response = {}
 
     if request.method == "PATCH":
-        dentist_username = request.form["dentist_username"]
-        dentist_password = request.form["dentist_password"]
+        dentist_username = request.json["dentist_username"]
+        dentist_email = request.json["dentist_email"]
+        dentist_password = request.json["dentist_password"]
 
         try:
+
             with sqlite3.connect("dentist_appointment.db") as conn:
                 conn.row_factory = dict_factory
                 cursor = conn.cursor()
-                cursor.execute("SELECT * FROM dentist WHERE dentist_username=? AND dentist_password=?",
-                               (dentist_username, dentist_password))
-                dentist = cursor.fetchone()
+                cursor.execute("SELECT * FROM dentist WHERE dentist_username=? and dentist_email=? and dentist_password=?",
+                               (dentist_username, dentist_email, dentist_password))
 
-            response['status_code'] = 200
-            response['data'] = dentist
-            return response
+            if not cursor.fetchone():
+                response['message'] = "failed"
+                response["status_code"] = 401
+                return response
+            else:
+                response['message'] = "welcome user"
+                response["status_code"] = 201
+                return response
+
 
         except ValueError:
             response['error'] = "Invalid"
