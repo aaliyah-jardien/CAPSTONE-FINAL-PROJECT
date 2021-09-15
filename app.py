@@ -1,13 +1,13 @@
-# Aaliyah Jardien, Class 2
-# Capstone Backend Project
+# AALIYAH JARDIEN, CLASS 2
+# CAPSTONE BACKEND PROJECT
 
-# importing from python
+# IMPORTING FROM PYTHON
 import datetime
 
 import sqlite3
 import re
 
-# importing from flask
+# IMPORTING FROM FLASK
 import flask_mail
 from flask import Flask, request
 from flask_cors import CORS
@@ -28,7 +28,7 @@ class Database:
         self.conn = sqlite3.connect("dentist_appointment.db")
         self.cursor = self.conn.cursor()
 
-        print("Slamat Opened Database successfully")
+        print("Slamat Opened Database successfully!")
 
         self.conn.execute("CREATE TABLE IF NOT EXISTS dentist(dentist_id INTEGER PRIMARY KEY AUTOINCREMENT,"
                           "dentist_name TEXT NOT NULL,"
@@ -179,7 +179,6 @@ def dentist_login():
         dentist_password = request.json["dentist_password"]
 
         try:
-
             with sqlite3.connect("dentist_appointment.db") as conn:
                 conn.row_factory = dict_factory
                 cursor = conn.cursor()
@@ -276,7 +275,7 @@ def delete_dentist(dentist_id):
 
 
 # zxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxcvzxczxcvxcvzxcvzxcvzxcvzxcvzxcvzxc
-# ROUTE FOR REGISTERING
+# ROUTE FOR REGISTERING PATIENT
 @app.route('/register-patient/', methods=["POST"])
 def register_patient():
     response = {}
@@ -457,14 +456,6 @@ def delete_patient(patient_id):
 @app.route('/add-booking/<int:patient_id>', methods=["POST"])
 def appointment(patient_id):
     response = {}
-    # "patient_name TEXT NOT NULL,"
-    # "patient_surname TEXT,"
-    # "patient_email TEXT NOT NULL,"
-    # "patient_cellphone INTEGER, "
-    # "patient_service TEXT NOT NULL,"
-    # "todays_date CURRENT_DATE, "
-    # "booking_date DATE,"
-    # "patient_id INTEGER,"
 
     try:
         patient_name = request.json["patient_name"]
@@ -631,28 +622,14 @@ print(x)
 def user_logout():
     return 'Successfully, logout!'
 
-
-# ERROR HANDLING
-# @app.errorhandler(HTTPException)
-# def handle_exception(e):
-#     # this handles all the errors is non-specific
-#     response = e.get_response()
-#     response.data = json.dumps({
-#         "code": e.code,
-#         "name": e.name,
-#         "description": e.description,
-#     })
-#     response.content_type = "application/json"
-#     return response
-
-
+# ERROR HANDLING EXCEPTION
 @app.errorhandler(404)
 def handle_exception(e):
     # this specifically handles 404 errors
     response = {'status_code': e.code, 'error_message': e.description}
     return response
 
-
+# SERVER HANDLING ERROR
 @app.errorhandler(500)
 def internal_server_error(e):
     # this specifically handles 500 errors
