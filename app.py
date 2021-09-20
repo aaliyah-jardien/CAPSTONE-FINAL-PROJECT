@@ -291,29 +291,29 @@ def register_patient():
             patient_cellphone = request.json["patient_cellphone"]
 
             # to check if email is valid
-            ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
-            x = "Welcome to the Dentist registration"
-            if re.search(ex, patient_email):
-                with sqlite3.connect('dentist_appointment.db') as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("INSERT INTO patient("
-                                   "patient_email,"
-                                   "patient_password,"
-                                   "patient_name,"
-                                   "patient_surname,"
-                                   "patient_dob,"
-                                   "patient_gender,"
-                                   "patient_cellphone) VALUES(?, ?, ?, ?, ?, ?, ?)",
-                                   (patient_email, patient_password, patient_name, patient_surname,
-                                    patient_dob, patient_gender, patient_cellphone))
-                    conn.commit()
-                    response['message'] = "Patient successfully registered"
-                    response['status_code'] = 201
-                    return response
-            else:
-                response['error_message'] = "Invalid Email"
-                response['status_code'] = 404
+            # ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
+            # x = "Welcome to the Dentist registration"
+            # if re.search(ex, patient_email):
+            with sqlite3.connect('dentist_appointment.db') as conn:
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO patient("
+                               "patient_email,"
+                               "patient_password,"
+                               "patient_name,"
+                               "patient_surname,"
+                               "patient_dob,"
+                               "patient_gender,"
+                               "patient_cellphone) VALUES(?, ?, ?, ?, ?, ?, ?)",
+                               (patient_email, patient_password, patient_name, patient_surname,
+                                patient_dob, patient_gender, patient_cellphone))
+                conn.commit()
+                response['message'] = "Patient successfully registered"
+                response['status_code'] = 201
                 return response
+            # else:
+            #     response['error_message'] = "Invalid Email"
+            #     response['status_code'] = 404
+            #     return response
 
         else:
             response['message'] = "Incorrect method"
