@@ -101,36 +101,31 @@ def register_admin():
         dentist_username = request.json["dentist_username"]
         dentist_password = request.json["dentist_password"]
         # VALIDATING EMAIL
-        ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
+        # ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
 
         if request.method == "POST":
-            if re.search(ex, dentist_email):
-                with sqlite3.connect("dentist_appointment.db") as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("INSERT INTO dentist("
-                                   "dentist_name,"
-                                   "dentist_surname,"
-                                   "dentist_email,"
-                                   "dentist_username,"
-                                   "dentist_password) VALUES(?, ?, ?, ?, ?)",
-                                   (dentist_name, dentist_surname, dentist_email, dentist_username, dentist_password))
-                    conn.commit()
+            # if re.search(ex, dentist_email):
+            with sqlite3.connect("dentist_appointment.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO dentist("
+                               "dentist_name,"
+                               "dentist_surname,"
+                               "dentist_email,"
+                               "dentist_username,"
+                               "dentist_password) VALUES(?, ?, ?, ?, ?)",
+                               (dentist_name, dentist_surname, dentist_email, dentist_username, dentist_password))
+                conn.commit()
 
-                    response['message'] = "Dentist registered successfully"
-                    response['status_code'] = 201
-                    response['data'] = {
-                        "dentist_name": dentist_name,
-                        "dentist_surname": dentist_surname,
-                        "dentist_email": dentist_email,
-                        "dentist_username": dentist_username,
-                        "dentist_password": dentist_password
-                    }
-                return response
-
-            else:
-                response['message'] = "Invalid Email"
-                response['status_code'] = 404
-                return response
+                response['message'] = "Dentist registered successfully"
+                response['status_code'] = 201
+                response['data'] = {
+                    "dentist_name": dentist_name,
+                    "dentist_surname": dentist_surname,
+                    "dentist_email": dentist_email,
+                    "dentist_username": dentist_username,
+                    "dentist_password": dentist_password
+                }
+            return response
 
         else:
             response['message'] = "Incorrect method"
