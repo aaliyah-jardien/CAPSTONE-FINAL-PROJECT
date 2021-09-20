@@ -342,7 +342,6 @@ def login_patient():
     response = {}
 
     if request.method == "PATCH":
-        patient_username = request.json["patient_username"]
         patient_email = request.json["patient_email"]
         patient_password = request.json["patient_password"]
 
@@ -350,17 +349,17 @@ def login_patient():
             conn.row_factory = dict_factory
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT * FROM patient WHERE patient_username=? and patient_email=? and patient_password=?",
-                (patient_username, patient_email, patient_password))
+                "SELECT * FROM patient WHERE patient_email=? and patient_password=?",
+                (patient_email, patient_password))
 
-        with sqlite3.connect("dentist_appointment.db") as conn:
-            conn.row_factory = dict_factory
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM patient")
+        # with sqlite3.connect("dentist_appointment.db") as conn:
+        #     conn.row_factory = dict_factory
+        #     cursor = conn.cursor()
+        #     cursor.execute("SELECT * FROM patient")
 
             response['status_code'] = 200
             response['message'] = "Patient logged in successfully"
-            response['date'] = cursor.fetchall()
+            response['user'] = cursor.fetchone()
         return response
 
 
