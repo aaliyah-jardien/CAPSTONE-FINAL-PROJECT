@@ -189,7 +189,6 @@ def dentist_login():
                 response["status_code"] = 201
                 return response
 
-
         except ValueError:
             response['error'] = "Invalid"
             response['status_code'] = 404
@@ -480,7 +479,7 @@ def appointment(patient_id):
                                "patient_cellphone,"
                                "patient_service,"
                                "booking_date,"
-                               "patient_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+                               "patient_id) VALUES(?, ?, ?, ?, ?, ?, ?)",
                                (patient_name, patient_surname, patient_email, patient_cellphone, patient_service,
                                 booking_date, patient_id))
                 conn.commit()
