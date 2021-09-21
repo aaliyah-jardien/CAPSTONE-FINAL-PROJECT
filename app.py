@@ -177,7 +177,8 @@ def dentist_login():
             with sqlite3.connect("dentist_appointment.db") as conn:
                 conn.row_factory = dict_factory
                 cursor = conn.cursor()
-                cursor.execute("SELECT * FROM dentist WHERE dentist_username=? and dentist_email=? and dentist_password=?",
+                cursor.execute("SELECT * FROM dentist WHERE dentist_username=? and dentist_email=?"
+                               "and dentist_password=?",
                                (dentist_username, dentist_email, dentist_password))
 
             if not cursor.fetchone():
@@ -468,7 +469,6 @@ def appointment(patient_id):
         patient_email = request.json["patient_email"]
         patient_cellphone = request.json["patient_cellphone"]
         patient_service = request.json["patient_service"]
-        todays_date = request.json["todays_date"]
         booking_date = request.json["booking_date"]
         patient_id = patient_id
 
@@ -484,11 +484,10 @@ def appointment(patient_id):
                                    "patient_email,"
                                    "patient_cellphone,"
                                    "patient_service,"
-                                   "todays_date,"
                                    "booking_date,"
                                    "patient_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
                                    (patient_name, patient_surname, patient_email, patient_cellphone, patient_service,
-                                    todays_date, booking_date, patient_id))
+                                    booking_date, patient_id))
                     conn.commit()
 
                     # msg = Message("Dentist Booking", sender="aaliyahjardien04@gmail.com", recipients=[patient_email])
