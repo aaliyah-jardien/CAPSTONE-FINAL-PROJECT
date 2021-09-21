@@ -461,20 +461,16 @@ def delete_patient(patient_id):
 @app.route('/add-booking/<int:patient_id>', methods=["POST"])
 def appointment(patient_id):
     response = {}
+    if request.method == "POST":
+        try:
+            patient_name = request.json["patient_name"]
+            patient_surname = request.json["patient_surname"]
+            patient_email = request.json["patient_email"]
+            patient_cellphone = request.json["patient_cellphone"]
+            patient_service = request.json["patient_service"]
+            booking_date = request.json["booking_date"]
+            patient_id = patient_id
 
-    try:
-        patient_name = request.json["patient_name"]
-        patient_surname = request.json["patient_surname"]
-        patient_email = request.json["patient_email"]
-        patient_cellphone = request.json["patient_cellphone"]
-        patient_service = request.json["patient_service"]
-        booking_date = request.json["booking_date"]
-        patient_id = patient_id
-
-        # to check if email is valid
-        # ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
-        if request.method == "POST":
-            # if re.search(ex, patient_email):
             with sqlite3.connect("dentist_appointment.db") as conn:
                 cursor = conn.cursor()
                 cursor.execute("INSERT INTO booking ("
@@ -497,15 +493,17 @@ def appointment(patient_id):
                 response['status_code'] = 200
                 return response
 
-        else:
-            response['message'] = "Incorrect method"
-            response['status_code'] = 400
+        except ValueError:
+            response['error'] = "Invalid"
+            response['status_code'] = 404
             return response
 
-    except ValueError:
-        response['error'] = "Invalid"
-        response['status_code'] = 404
+    else:
+        response['message'] = "Incorrect method"
+        response['status_code'] = 400
         return response
+
+
 
 
 # ROUTE TO DISPLAY ONE BOOKING
