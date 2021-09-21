@@ -54,8 +54,7 @@ class Database:
                           "patient_email TEXT NOT NULL,"
                           "patient_cellphone INTEGER, "
                           "patient_service TEXT NOT NULL,"
-                          "todays_date CURRENT_DATE, "
-                          "booking_date DATE,"
+                          "booking_date TEXT,"
                           "patient_id INTEGER,"
                           "CONSTRAINT fk_patients FOREIGN KEY(patient_id) REFERENCES patient(patient_id))")
         print("Booking table was created successfully!")
@@ -478,7 +477,7 @@ def appointment(patient_id):
             if re.search(ex, patient_email):
                 with sqlite3.connect("dentist_appointment.db") as conn:
                     cursor = conn.cursor()
-                    cursor.execute("INSERT OR REPLACE INTO booking ("
+                    cursor.execute("INSERT INTO booking ("
                                    "patient_name,"
                                    "patient_surname,"
                                    "patient_email,"
