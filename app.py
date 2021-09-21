@@ -93,17 +93,14 @@ def welcome():
 @app.route('/dentist-register/', methods=["POST"])
 def register_admin():
     response = {}
-    try:
-        dentist_name = request.json["dentist_name"]
-        dentist_surname = request.json["dentist_surname"]
-        dentist_email = request.json["dentist_email"]
-        dentist_username = request.json["dentist_username"]
-        dentist_password = request.json["dentist_password"]
-        # VALIDATING EMAIL
-        # ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
+    if request.method == "POST":
+        try:
+            dentist_name = request.json["dentist_name"]
+            dentist_surname = request.json["dentist_surname"]
+            dentist_email = request.json["dentist_email"]
+            dentist_username = request.json["dentist_username"]
+            dentist_password = request.json["dentist_password"]
 
-        if request.method == "POST":
-            # if re.search(ex, dentist_email):
             with sqlite3.connect("dentist_appointment.db") as conn:
                 cursor = conn.cursor()
                 cursor.execute("INSERT INTO dentist("
@@ -124,26 +121,26 @@ def register_admin():
                     "dentist_username": dentist_username,
                     "dentist_password": dentist_password
                 }
-            return response
-
-        else:
-            response['message'] = "Incorrect method"
+        except ValueError:
+            response['message'] = "Incorrect Values"
             response['status_code'] = 400
             return response
 
-    except ValueError:
-        response['message'] = "Incorrect Values"
+        except ConnectionError:
+            response['message'] = "Connection Failed"
+            response['status_code'] = 500
+            return response
+
+        except TimeoutError:
+            response['message'] = "Connection Timeout"
+            response['status_code'] = 500
+            return response
+
+        return response
+
+    else:
+        response['message'] = "Incorrect method"
         response['status_code'] = 400
-        return response
-
-    except ConnectionError:
-        response['message'] = "Connection Failed"
-        response['status_code'] = 500
-        return response
-
-    except TimeoutError:
-        response['message'] = "Connection Timeout"
-        response['status_code'] = 500
         return response
 
 
