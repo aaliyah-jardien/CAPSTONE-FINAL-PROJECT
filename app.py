@@ -472,34 +472,29 @@ def appointment(patient_id):
         patient_id = patient_id
 
         # to check if email is valid
-        ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
+        # ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
         if request.method == "POST":
-            if re.search(ex, patient_email):
-                with sqlite3.connect("dentist_appointment.db") as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("INSERT INTO booking ("
-                                   "patient_name,"
-                                   "patient_surname,"
-                                   "patient_email,"
-                                   "patient_cellphone,"
-                                   "patient_service,"
-                                   "booking_date,"
-                                   "patient_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-                                   (patient_name, patient_surname, patient_email, patient_cellphone, patient_service,
-                                    booking_date, patient_id))
-                    conn.commit()
+            # if re.search(ex, patient_email):
+            with sqlite3.connect("dentist_appointment.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO booking ("
+                               "patient_name,"
+                               "patient_surname,"
+                               "patient_email,"
+                               "patient_cellphone,"
+                               "patient_service,"
+                               "booking_date,"
+                               "patient_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+                               (patient_name, patient_surname, patient_email, patient_cellphone, patient_service,
+                                booking_date, patient_id))
+                conn.commit()
 
-                    # msg = Message("Dentist Booking", sender="aaliyahjardien04@gmail.com", recipients=[patient_email])
-                    # msg.body = "Booking made for:" + str(patient_name) + "for the date of " + str(booking_date)
-                    # mail.send(msg)
+                # msg = Message("Dentist Booking", sender="aaliyahjardien04@gmail.com", recipients=[patient_email])
+                # msg.body = "Booking made for:" + str(patient_name) + "for the date of " + str(booking_date)
+                # mail.send(msg)
 
-                    response['message'] = "Booking made successfully"
-                    response['status_code'] = 200
-                    return response
-
-            else:
-                response['error_message'] = "Invalid Email"
-                response['status_code'] = 404
+                response['message'] = "Booking made successfully"
+                response['status_code'] = 200
                 return response
 
         else:
